@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ford Transit - Screenshots</title>
+    <style>
+        body { background: #050a0f; color: #00d4ff; font-family: monospace; text-align: center; padding: 20px; }
+        canvas { border: 2px solid #00d4ff; margin: 20px; max-width: 100%; }
+        button { background: #003478; color: white; border: 2px solid #00d4ff; padding: 15px 30px; margin: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>📸 Ford Transit - Screenshots Generator</h1>
+    
+    <div>
+        <h2>Desktop (1280x720)</h2>
+        <canvas id="desktopCanvas" width="1280" height="720"></canvas>
+        <br>
+        <button onclick="downloadDesktop()">Завантажити desktop-wide.png</button>
+    </div>
+    
+    <div>
+        <h2>Mobile (720x1280)</h2>
+        <canvas id="mobileCanvas" width="720" height="1280"></canvas>
+        <br>
+        <button onclick="downloadMobile()">Завантажити mobile.png</button>
+    </div>
+
+    <script>
+        function drawDesktop(ctx) {
+            const w = 1280, h = 720;
+            
+            // Background
+            ctx.fillStyle = '#0a1420';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Header
+            ctx.fillStyle = '#003478';
+            ctx.fillRect(0, 0, w, 80);
+            
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = 'bold 40px "Orbitron", monospace';
+            ctx.fillText('FORD TRANSIT', 50, 55);
+            
+            // Stats cards
+            const stats = [
+                {label: 'Пробіг', value: '128,450 км', color: '#00d4ff'},
+                {label: 'Ремонти', value: '12', color: '#00e676'},
+                {label: 'Заправки', value: '34', color: '#ffa726'},
+                {label: 'Витрати', value: '45,600 ₴', color: '#ff5252'}
+            ];
+            
+            for(let i = 0; i < 4; i++) {
+                ctx.fillStyle = '#101f30';
+                ctx.strokeStyle = '#00a0e3';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(50 + i * 220, 120, 200, 120);
+                
+                ctx.fillStyle = '#7ab5d4';
+                ctx.font = '18px "Rajdhani", sans-serif';
+                ctx.fillText(stats[i].label, 80 + i * 220, 160);
+                
+                ctx.fillStyle = stats[i].color;
+                ctx.font = 'bold 28px "Share Tech Mono", monospace';
+                ctx.fillText(stats[i].value, 80 + i * 220, 200);
+            }
+            
+            // Recent activity
+            ctx.fillStyle = '#00a0e3';
+            ctx.font = '24px "Orbitron", monospace';
+            ctx.fillText('Останні активності', 50, 280);
+            
+            const activities = [
+                '🔧 Заміна масла - 15.02.2024 - 2,500 грн',
+                '⛽ Заправка - 14.02.2024 - 1,800 грн',
+                '🔧 Гальма - 10.02.2024 - 3,200 грн',
+                '⛽ Заправка - 05.02.2024 - 1,900 грн',
+                '🔔 Нагадування: ТО за 500 км'
+            ];
+            
+            for(let i = 0; i < activities.length; i++) {
+                ctx.fillStyle = '#0d1a28';
+                ctx.fillRect(50, 310 + i * 55, 1180, 45);
+                
+                ctx.fillStyle = i < 2 ? '#ffa726' : '#7ab5d4';
+                ctx.font = '18px "Rajdhani", sans-serif';
+                ctx.fillText(activities[i], 70, 345 + i * 55);
+            }
+        }
+        
+        function drawMobile(ctx) {
+            const w = 720, h = 1280;
+            
+            // Background
+            ctx.fillStyle = '#050a0f';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Header
+            ctx.fillStyle = '#003478';
+            ctx.fillRect(0, 0, w, 90);
+            
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = 'bold 30px "Orbitron", monospace';
+            ctx.fillText('TRANSIT', 30, 55);
+            
+            // Odometer
+            ctx.font = '48px "Share Tech Mono", monospace';
+            ctx.fillStyle = '#00d4ff';
+            ctx.fillText('128,450 км', 30, 160);
+            
+            // Mini cards
+            const cards = [
+                {label: 'Ремонти', value: '12', x: 30, y: 200},
+                {label: 'Заправки', value: '34', x: 370, y: 200},
+                {label: 'Витрати', value: '45.6k', x: 30, y: 340},
+                {label: 'Сер. витрата', value: '8.5 л', x: 370, y: 340}
+            ];
+            
+            cards.forEach(card => {
+                ctx.fillStyle = '#101f30';
+                ctx.strokeStyle = '#00a0e3';
+                ctx.strokeRect(card.x, card.y, 300, 120);
+                
+                ctx.fillStyle = '#7ab5d4';
+                ctx.font = '18px "Rajdhani", sans-serif';
+                ctx.fillText(card.label, card.x + 30, card.y + 40);
+                
+                ctx.fillStyle = '#00e676';
+                ctx.font = 'bold 32px "Share Tech Mono", monospace';
+                ctx.fillText(card.value, card.x + 30, card.y + 90);
+            });
+            
+            // Reminders
+            ctx.fillStyle = '#00a0e3';
+            ctx.font = '22px "Orbitron", monospace';
+            ctx.fillText('Нагадування', 30, 500);
+            
+            const reminders = [
+                '🔔 Заміна масла - 500 км',
+                '🔔 Гальма - 1,200 км',
+                '🔔 Техогляд - 30 днів',
+                '🔔 Страхування - 45 днів'
+            ];
+            
+            for(let i = 0; i < reminders.length; i++) {
+                ctx.fillStyle = '#0d1a28';
+                ctx.fillRect(30, 530 + i * 85, 660, 70);
+                
+                ctx.fillStyle = '#ffa726';
+                ctx.font = '20px "Rajdhani", sans-serif';
+                ctx.fillText(reminders[i], 50, 575 + i * 85);
+            }
+        }
+        
+        function downloadDesktop() {
+            const canvas = document.getElementById('desktopCanvas');
+            drawDesktop(canvas.getContext('2d'));
+            
+            const link = document.createElement('a');
+            link.download = 'desktop-wide.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            alert('✅ desktop-wide.png завантажено');
+        }
+        
+        function downloadMobile() {
+            const canvas = document.getElementById('mobileCanvas');
+            drawMobile(canvas.getContext('2d'));
+            
+            const link = document.createElement('a');
+            link.download = 'mobile.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            alert('✅ mobile.png завантажено');
+        }
+        
+        // Preview
+        drawDesktop(document.getElementById('desktopCanvas').getContext('2d'));
+        drawMobile(document.getElementById('mobileCanvas').getContext('2d'));
+    </script>
+</body>
+</html>
