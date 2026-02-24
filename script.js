@@ -1,3 +1,21 @@
+// Додайте на початок файлу
+(function() {
+    console.log('🚐 Ford Transit Journal');
+    console.log('- Режим PWA (iOS):', window.navigator.standalone ? 'Так' : 'Ні');
+    console.log('- Шлях:', window.location.pathname);
+    console.log('- База:', document.querySelector('base')?.getAttribute('href') || 'не вказано');
+    
+    // Перевірка чи встановлено додаток
+    if (window.navigator.standalone) {
+        document.body.classList.add('pwa-installed');
+        
+        // Додаткові перевірки
+        fetch('manifest.json')
+            .then(r => r.json())
+            .then(m => console.log('✅ manifest.json завантажено'))
+            .catch(e => console.error('❌ manifest.json не завантажено:', e));
+    }
+})();
 // ===== STATE =====
 let data = {
   odo: null,

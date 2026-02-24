@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ford Transit 2014 — Бортовий Журнал</title>
+<base href="./">
 <!-- PWA Support -->
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
@@ -410,34 +411,24 @@
   </div>
 </div>
 <script src="script.js"></script>
-<!-- ЗАМІНІТЬ цей скрипт в кінці файлу -->
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
+            // Використовуємо відносний шлях
+            navigator.serviceWorker.register('./sw.js')
                 .then(registration => {
-                    console.log('✅ ServiceWorker зареєстровано успішно:', registration.scope);
+                    console.log('✅ ServiceWorker зареєстровано');
+                    
+                    // Перевіряємо, чи встановлено додаток
+                    if (window.navigator.standalone) {
+                        console.log('📱 Додаток відкрито в режимі standalone (iOS)');
+                        document.body.classList.add('pwa-mode');
+                    }
                 })
                 .catch(error => {
-                    console.log('❌ Помилка реєстрації ServiceWorker:', error);
+                    console.log('❌ Помилка реєстрації:', error);
                 });
         });
-        
-        // Перевірка наявності іконок
-        fetch('manifest.json')
-            .then(response => response.json())
-            .then(manifest => {
-                console.log('📱 Маніфест завантажено:', manifest);
-                // Перевіряємо чи є іконки
-                manifest.icons.forEach(icon => {
-                    fetch(icon.src)
-                        .then(() => console.log(`✅ Іконка ${icon.src} доступна`))
-                        .catch(() => console.error(`❌ Іконка ${icon.src} відсутня!`));
-                });
-            })
-            .catch(error => console.error('❌ Помилка завантаження маніфесту:', error));
-    } else {
-        console.log('❌ Service Worker не підтримується браузером');
     }
 </script>
 </body>
