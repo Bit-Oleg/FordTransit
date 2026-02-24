@@ -412,24 +412,28 @@
 </div>
 <script src="script.js"></script>
 <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            // Використовуємо відносний шлях
-            navigator.serviceWorker.register('./sw.js')
-                .then(registration => {
-                    console.log('✅ ServiceWorker зареєстровано');
-                    
-                    // Перевіряємо, чи встановлено додаток
-                    if (window.navigator.standalone) {
-                        console.log('📱 Додаток відкрито в режимі standalone (iOS)');
-                        document.body.classList.add('pwa-mode');
-                    }
-                })
-                .catch(error => {
-                    console.log('❌ Помилка реєстрації:', error);
-                });
-        });
-    }
+    // ФІКС для iOS PWA
+    (function() {
+        // Якщо додаток відкрито в режимі PWA на iOS
+        if (window.navigator.standalone) {
+            console.log('📱 PWA режим на iOS');
+            
+            // Перевіряємо URL
+            if (window.location.pathname === '/' || 
+                window.location.pathname === '/FordTransit') {
+                console.log('🔄 Перенаправлення на правильний URL');
+                window.location.href = '/FordTransit/';
+            }
+            
+            // Додаємо клас для стилізації
+            document.body.classList.add('pwa-mode');
+        }
+        
+        // Перевірка на 404
+        if (document.title.includes('404')) {
+            window.location.href = '/FordTransit/';
+        }
+    })();
 </script>
 </body>
 </html>

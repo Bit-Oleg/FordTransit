@@ -1,13 +1,14 @@
-const CACHE_NAME = 'ford-transit-v4';
+const CACHE_NAME = 'ford-transit-v5';
+const BASE_PATH = '/FordTransit';
 
 const urlsToCache = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png',
+  BASE_PATH + '/',
+  BASE_PATH + '/index.html',
+  BASE_PATH + '/style.css',
+  BASE_PATH + '/script.js',
+  BASE_PATH + '/manifest.json',
+  BASE_PATH + '/icons/icon-192x192.png',
+  BASE_PATH + '/icons/icon-512x512.png',
   'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap'
 ];
 
@@ -15,55 +16,30 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('📦 Кешування...');
-        return cache.addAll(urlsToCache).catch(() => {
-          // Якщо addAll fails, кешуємо по одному
-          return Promise.all(
-            urlsToCache.map(url => 
-              fetch(url)
-                .then(res => {
-                  if (res.ok) return cache.put(url, res);
-                })
-                .catch(() => {})
-            )
-          );
-        });
-      })
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
 self.addEventListener('fetch', event => {
-  // Важливо: ігноруємо запити не до нашого origin
-  if (!event.request.url.startsWith(self.location.origin) && 
-      !event.request.url.includes('fonts.googleapis.com')) {
+  // Виправлення для iOS
+  let requestUrl = event.request.url;
+  
+  // Якщо запит на корінь, перенаправляємо
+  if (requestUrl.endsWith('/') && !requestUrl.includes('FordTransit')) {
+    event.respondWith(
+      caches.match(BASE_PATH + '/index.html')
+        .then(response => response || fetch(BASE_PATH + '/index.html'))
+    );
     return;
   }
-
+  
   event.respondWith(
     caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
+      .then(response => response || fetch(event.request))
+      .catch(() => {
+        if (event.request.headers.get('accept').includes('text/html')) {
+          return caches.match(BASE_PATH + '/index.html');
         }
-        return fetch(event.request)
-          .then(response => {
-            // Не кешуємо відповіді з помилками
-            if (response && response.status === 200) {
-              const responseToCache = response.clone();
-              caches.open(CACHE_NAME)
-                .then(cache => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Якщо немає мережі і це HTML запит, повертаємо index.html
-            if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('./index.html');
-            }
-          });
       })
   );
 });
