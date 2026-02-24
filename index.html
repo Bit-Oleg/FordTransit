@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ford Transit 2014 — Бортовий Журнал</title>
+<!-- PWA Support -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ford Transit">
+<meta name="theme-color" content="#003478">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-152x152.png">
+
+<!-- Splash screens for iOS (оновлені) -->
+<link rel="apple-touch-startup-image" href="splash/iphone12.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash/iphone14.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="ford-logo">FORD</div>
+    <div class="header-title">
+      <h1>TRANSIT</h1>
+      <span>Бортовий Журнал · 2014</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="odometer">
+      <div class="odometer-label">Пробіг</div>
+      <div class="odometer-value" id="headerOdo" title="Натисніть щоб оновити">—</div>
+    </div>
+    <div class="clock" id="clockEl"></div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection('dash')" id="nav-dash">
+    <span class="nav-icon">⊞</span> Панель
+  </button>
+  <button class="nav-btn" onclick="showSection('repairs')" id="nav-repairs">
+    <span class="nav-icon">🔧</span> Ремонти та ТО
+  </button>
+  <button class="nav-btn" onclick="showSection('mileage')" id="nav-mileage">
+    <span class="nav-icon">⛽</span> Пробіг та заправки
+  </button>
+  <button class="nav-btn" onclick="showSection('finance')" id="nav-finance">
+    <span class="nav-icon">₴</span> Витрати
+  </button>
+  <button class="nav-btn" onclick="showSection('remind')" id="nav-remind">
+    <span class="nav-icon">🔔</span> Нагадування <span class="badge" id="remindBadge" style="display:none">0</span>
+  </button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="section active" id="sec-dash">
+    <div class="grid-4" style="margin-bottom:20px">
+      <div class="stat-widget">
+        <div class="stat-label">Поточний пробіг</div>
+        <div class="stat-value" id="dashOdo">—</div>
+        <div class="stat-unit">км</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Ремонтів</div>
+        <div class="stat-value" id="dashRepairs">0</div>
+        <div class="stat-unit">записів</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Заправок</div>
+        <div class="stat-value" id="dashFuels">0</div>
+        <div class="stat-unit">разів</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Витрат всього</div>
+        <div class="stat-value" id="dashCosts">0</div>
+        <div class="stat-unit">грн</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-title">🔧 Останні ремонти</div>
+        <div id="dashLastRepairs">
+          <div class="empty"><div class="empty-icon">🔧</div><div class="empty-text">Записів немає</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">⛽ Останні заправки</div>
+        <div id="dashLastFuels">
+          <div class="empty"><div class="empty-icon">⛽</div><div class="empty-text">Записів немає</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔔 Найближчі нагадування</div>
+      <div id="dashReminders">
+        <div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Нагадувань немає</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REPAIRS ===== -->
+  <div class="section" id="sec-repairs">
+    <div class="section-header">
+      <div class="section-title">🔧 Ремонти та ТО</div>
+      <button class="btn btn-primary" onclick="openModal('repairModal')">＋ Додати запис</button>
+    </div>
+    <div class="card">
+      <div id="repairsTableWrap">
+        <div class="empty"><div class="empty-icon">🔧</div><div class="empty-text">Поки що записів немає</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MILEAGE ===== -->
+  <div class="section" id="sec-mileage">
+    <div class="section-header">
+      <div class="section-title">⛽ Пробіг та заправки</div>
+      <button class="btn btn-primary" onclick="openModal('fuelModal')">＋ Додати заправку</button>
+    </div>
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="stat-widget">
+        <div class="stat-label">Всього палива</div>
+        <div class="stat-value" id="statTotalFuel">0</div>
+        <div class="stat-unit">літрів</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Середня витрата</div>
+        <div class="stat-value" id="statAvgConsump">—</div>
+        <div class="stat-unit">л/100км</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Витрачено на пальне</div>
+        <div class="stat-value" id="statFuelCost">0</div>
+        <div class="stat-unit">грн</div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="fuelTableWrap">
+        <div class="empty"><div class="empty-icon">⛽</div><div class="empty-text">Поки що заправок немає</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FINANCE ===== -->
+  <div class="section" id="sec-finance">
+    <div class="section-header">
+      <div class="section-title">₴ Витрати</div>
+      <button class="btn btn-primary" onclick="openModal('expenseModal')">＋ Додати витрату</button>
+    </div>
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="stat-widget">
+        <div class="stat-label">Ремонти та ТО</div>
+        <div class="stat-value" id="costRepair">0</div>
+        <div class="stat-unit">грн</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Паливо</div>
+        <div class="stat-value" id="costFuel">0</div>
+        <div class="stat-unit">грн</div>
+      </div>
+      <div class="stat-widget">
+        <div class="stat-label">Інше</div>
+        <div class="stat-value" id="costOther">0</div>
+        <div class="stat-unit">грн</div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="expenseTableWrap">
+        <div class="empty"><div class="empty-icon">💳</div><div class="empty-text">Поки що записів немає</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REMINDERS ===== -->
+  <div class="section" id="sec-remind">
+    <div class="section-header">
+      <div class="section-title">🔔 Нагадування та планове ТО</div>
+      <button class="btn btn-primary" onclick="openModal('remindModal')">＋ Додати нагадування</button>
+    </div>
+    <div class="gap-16" id="remindersListEl">
+      <div class="empty"><div class="empty-icon">🔔</div><div class="empty-text">Нагадувань немає</div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Repair Modal -->
+<div class="modal-overlay" id="repairModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔧 Новий запис ремонту</div>
+      <button class="modal-close" onclick="closeModal('repairModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Дата</label>
+      <input type="date" id="rDate">
+    </div>
+    <div class="form-group">
+      <label>Пробіг при ремонті (км)</label>
+      <input type="number" id="rOdo" placeholder="наприклад 125000">
+    </div>
+    <div class="form-group">
+      <label>Тип роботи</label>
+      <select id="rType">
+        <option value="">— Оберіть тип —</option>
+        <option>Заміна оливи та фільтрів</option>
+        <option>Гальмівна система</option>
+        <option>Підвіска та рульове</option>
+        <option>Двигун</option>
+        <option>Трансмісія</option>
+        <option>Електрика</option>
+        <option>Кузов та скло</option>
+        <option>Шини та диски</option>
+        <option>Технічний огляд</option>
+        <option>Інше</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Опис робіт</label>
+      <textarea id="rDesc" placeholder="Що саме було зроблено..."></textarea>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Вартість (грн)</label>
+        <input type="number" id="rCost" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Де виконано</label>
+        <input type="text" id="rPlace" placeholder="СТО / Власноруч">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Примітки</label>
+      <input type="text" id="rNotes" placeholder="Додаткова інформація...">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveRepair()">💾 Зберегти</button>
+  </div>
+</div>
+
+<!-- Fuel Modal -->
+<div class="modal-overlay" id="fuelModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⛽ Нова заправка</div>
+      <button class="modal-close" onclick="closeModal('fuelModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Дата</label>
+      <input type="date" id="fDate">
+    </div>
+    <div class="form-group">
+      <label>Пробіг (км)</label>
+      <input type="number" id="fOdo" placeholder="наприклад 125000">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Літрів</label>
+        <input type="number" step="0.1" id="fLiters" placeholder="0.0">
+      </div>
+      <div class="form-group">
+        <label>Ціна за літр (грн)</label>
+        <input type="number" step="0.01" id="fPrice" placeholder="0.00">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Тип пального</label>
+        <select id="fType">
+          <option>Дизель</option>
+          <option>Бензин А-92</option>
+          <option>Бензин А-95</option>
+          <option>Газ (LPG)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Заправна станція</label>
+        <input type="text" id="fStation" placeholder="ОККО, WOG...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Повний бак?</label>
+      <select id="fFull">
+        <option value="1">Так — повний бак</option>
+        <option value="0">Ні — частково</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Примітки</label>
+      <input type="text" id="fNotes" placeholder="...">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveFuel()">💾 Зберегти</button>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">₴ Нова витрата</div>
+      <button class="modal-close" onclick="closeModal('expenseModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Дата</label>
+      <input type="date" id="eDate">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Категорія</label>
+        <select id="eCat">
+          <option value="repair">Ремонт / ТО</option>
+          <option value="fuel">Паливо</option>
+          <option value="insurance">Страхування</option>
+          <option value="tax">Податки / Документи</option>
+          <option value="parking">Паркування / Штрафи</option>
+          <option value="other">Інше</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Сума (грн)</label>
+        <input type="number" id="eAmount" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Опис</label>
+      <textarea id="eDesc" placeholder="Опишіть витрату..."></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveExpense()">💾 Зберегти</button>
+  </div>
+</div>
+
+<!-- Reminder Modal -->
+<div class="modal-overlay" id="remindModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔔 Нове нагадування</div>
+      <button class="modal-close" onclick="closeModal('remindModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Назва</label>
+      <input type="text" id="rdName" placeholder="наприклад: Заміна оливи">
+    </div>
+    <div class="form-group">
+      <label>Тип нагадування</label>
+      <select id="rdType" onchange="toggleRdFields()">
+        <option value="km">За пробігом (км)</option>
+        <option value="date">За датою</option>
+        <option value="both">За пробігом та датою</option>
+      </select>
+    </div>
+    <div id="rdKmField" class="form-group">
+      <label>Пробіг для нагадування (км)</label>
+      <input type="number" id="rdKm" placeholder="наприклад 130000">
+    </div>
+    <div id="rdDateField" class="form-group" style="display:none">
+      <label>Дата нагадування</label>
+      <input type="date" id="rdDate">
+    </div>
+    <div class="form-group">
+      <label>Іконка</label>
+      <select id="rdIcon">
+        <option value="🛢️">🛢️ Олива</option>
+        <option value="🔧">🔧 Загальний ремонт</option>
+        <option value="💨">💨 Фільтр повітря</option>
+        <option value="🛑">🛑 Гальма</option>
+        <option value="🔋">🔋 Акумулятор</option>
+        <option value="❄️">❄️ Антифриз</option>
+        <option value="🚿">🚿 Рідина склоомивача</option>
+        <option value="⚙️">⚙️ ГРМ / Ремінь</option>
+        <option value="🔴">🔴 Свічки запалювання</option>
+        <option value="📋">📋 Техогляд</option>
+        <option value="🛡️">🛡️ Страхування</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Примітки</label>
+      <input type="text" id="rdNotes" placeholder="Додатково...">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveReminder()">💾 Зберегти</button>
+  </div>
+</div>
+
+<!-- Odometer Edit Modal -->
+<div class="modal-overlay" id="odoModal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <div class="modal-title">🚗 Оновити пробіг</div>
+      <button class="modal-close" onclick="closeModal('odoModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Поточний пробіг (км)</label>
+      <input type="number" id="odoInput" placeholder="наприклад 128500">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveOdo()">✅ Зберегти</button>
+  </div>
+</div>
+<script src="script.js"></script>
+<!-- ЗАМІНІТЬ цей скрипт в кінці файлу -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('✅ ServiceWorker зареєстровано успішно:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('❌ Помилка реєстрації ServiceWorker:', error);
+                });
+        });
+        
+        // Перевірка наявності іконок
+        fetch('manifest.json')
+            .then(response => response.json())
+            .then(manifest => {
+                console.log('📱 Маніфест завантажено:', manifest);
+                // Перевіряємо чи є іконки
+                manifest.icons.forEach(icon => {
+                    fetch(icon.src)
+                        .then(() => console.log(`✅ Іконка ${icon.src} доступна`))
+                        .catch(() => console.error(`❌ Іконка ${icon.src} відсутня!`));
+                });
+            })
+            .catch(error => console.error('❌ Помилка завантаження маніфесту:', error));
+    } else {
+        console.log('❌ Service Worker не підтримується браузером');
+    }
+</script>
+</body>
+</html>
